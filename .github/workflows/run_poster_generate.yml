@@ -9,8 +9,8 @@ env:
   # please change to your own config.
   # this actions generate only this year
   # If you fork this please change the type to yours below
-  TYPE: "strava, github, forest, pass" # support strava/gpx/ns/cichang/shanbay/duolingo/issue/leetcode/github/gitlab/kindle/bilibili/wakatime/dota2/forest, Please change the 'pass' it to your own separated by commas
-  ME: yihong0618
+  TYPE: "strava" # support strava/gpx/ns/cichang/shanbay/duolingo/issue/leetcode/github/gitlab/kindle/bilibili/wakatime/dota2/forest, Please change the 'pass' it to your own separated by commas
+  ME: kohath
 
 jobs:
   sync:
@@ -38,7 +38,7 @@ jobs:
       - name: Run sync strava script
         if: contains(env.TYPE, 'strava')
         run: |
-          python -m github_poster strava --strava_client_id ${{ secrets.STRAVA_CLIENT_ID }} --strava_client_secret ${{ secrets.STRAVA_CLIENT_SECRET }} --strava_refresh_token ${{ secrets.STRAVA_CLIENT_REFRESH_TOKEN }} --me ${{ env.ME }} --year 2012-$(date +"%Y") --is-circular
+          python -m github_poster strava --strava_client_id ${{ secrets.STRAVA_CLIENT_ID }} --strava_client_secret ${{ secrets.STRAVA_CLIENT_SECRET }} --strava_refresh_token ${{ secrets.STRAVA_CLIENT_REFRESH_TOKEN }} --me ${{ env.ME }} --year 2025 --background-color "#FFFFFF" --text-color "#1f232b" --with-animation
 
       - name: Run sync shanbay script
         if: contains(env.TYPE, 'shanbay')

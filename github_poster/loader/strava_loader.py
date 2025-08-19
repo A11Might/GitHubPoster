@@ -84,9 +84,10 @@ class StravaLoader(BaseLoader):
     def make_track_dict(self):
         tracks = list(self.get_api_data())
         for t in tracks:
-            num = round(float(t.distance) / 1000, 2)
-            self.number_by_date_dict[str(t.start_date_local.date())] += num
-            self.number_list.append(num)
+            if t.type == "Run":
+                num = round(float(t.distance) / 1000, 2)
+                self.number_by_date_dict[str(t.start_date_local.date())] += num
+                self.number_list.append(num)
         return tracks
 
     def get_all_track_data(self):
