@@ -20,9 +20,9 @@ class Drawer:
     def __init__(self, p):
         self.poster = p
         self.year_size = 200 * 4.0 / 80.0
-        self.year_style = f"font-size:{self.year_size}px; font-family:Arial;"
-        self.year_length_style = f"font-size:{110 * 3.0 / 80.0}px; font-family:Arial;"
-        self.month_names_style = "font-size:2.5px; font-family:Arial"
+        self.year_style = f"font-size:{self.year_size}px; font-family:'LXGW WenKai';"
+        self.year_length_style = f"font-size:{110 * 3.0 / 80.0}px; font-family:'LXGW WenKai';"
+        self.month_names_style = "font-size:2.5px; font-family:'LXGW WenKai'"
 
     @property
     def type_color_dict(self):
@@ -232,6 +232,11 @@ class Drawer:
         offset.y += 3.5 * 9 + self.year_size + 1.0
 
     def draw(self, dr, offset, is_summary=False):
+        # Add LXGW WenKai font style
+        dr.add(dr.style("""
+            @import url("https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css");
+        """))
+        
         if self.poster.tracks is None:
             raise BaseDrawError("No tracks to draw")
 
