@@ -1,5 +1,7 @@
+import base64
 import calendar
 import datetime
+import os
 
 import svgwrite.animate
 
@@ -12,6 +14,7 @@ from github_poster.config import (
 )
 from github_poster.err import BaseDrawError
 from github_poster.utils import interpolate_color, make_key_times
+from github_poster.font_subset import create_optimized_font_for_poster
 
 
 class Drawer:
@@ -23,6 +26,45 @@ class Drawer:
         self.year_style = f"font-size:{self.year_size}px; font-family:'LXGW WenKai';"
         self.year_length_style = f"font-size:{110 * 3.0 / 80.0}px; font-family:'LXGW WenKai';"
         self.month_names_style = "font-size:2.5px; font-family:'LXGW WenKai'"
+
+    def _get_embedded_font(self, custom_chars=None):
+        """
+        Get the embedded font as base64 string for SVG, using optimized subset
+        """
+        # 创建优化的字体文件
+        subset_font_path = create_optimized_font_for_poster(self.poster, custom_chars)
+        
+        try:
+            with open(subset_font_path, 'rb') as font_file:
+                font_data = font_file.read()
+                return base64.b64encode(font_data).decode('utf-8')
+        except (IOError, OSError):
+            # 回退到原始字体
+            original_font_path = os.path.join(os.path.dirname(__file__), 'font', 'LXGWWenKai-Regular.ttf')
+            try:
+                with open(original_font_path, 'rb') as font_file:
+                    font_data = font_file.read()
+                    return base64.b64encode(font_data).decode('utf-8')
+            except (IOError, OSError):
+                print(f"Warning: Could not load any font file")
+                return None
+
+    def _create_font_style(self, custom_chars=None):
+        """
+        Create CSS style with optimized embedded font
+        """
+        font_base64 = self._get_embedded_font(custom_chars)
+        if font_base64:
+            return f"""
+                @font-face {{
+                    font-family: 'LXGW WenKai';
+                    src: url(data:font/truetype;charset=utf-8;base64,{font_base64}) format('truetype');
+                    font-weight: normal;
+                    font-style: normal;
+                }}
+            """
+        else:
+            return ""
 
     @property
     def type_color_dict(self):
@@ -231,11 +273,9 @@ class Drawer:
             rect_x += 3.5
         offset.y += 3.5 * 9 + self.year_size + 1.0
 
-    def draw(self, dr, offset, is_summary=False):
-        # Add LXGW WenKai font style
-        dr.add(dr.style("""
-            @import url("https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css");
-        """))
+    def draw(self, dr, offset, is_summary=False, custom_chars=None):
+        # Add embedded LXGW WenKai font style with optimized subset
+        dr.add(dr.style(self._create_font_style(custom_chars)))
         
         if self.poster.tracks is None:
             raise BaseDrawError("No tracks to draw")
